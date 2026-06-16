@@ -50,7 +50,7 @@ a:hover {
 
 /* Main content block */
 .main-content {
-  max-width: 900px;
+  max-width: 1020px;
   margin: 30px auto;
   padding: 0 20px;
 }
@@ -67,7 +67,7 @@ a:hover {
   background-color: #0f3460;
   padding: 25px;
   border-radius: 8px;
-  margin-bottom: 30px;
+  margin: 0 auto 30px;
 }
 
 .reviews-section h2 {
@@ -107,7 +107,7 @@ a:hover {
   background-color: #16213e;
   padding: 25px;
   border-radius: 8px;
-  margin-bottom: 30px;
+  margin: 0 auto 30px;
 }
 
 .media-section img {
@@ -136,17 +136,18 @@ a:hover {
   border: none;
 }
 
-/* Tableau block — full width, viewport-height sizing */
+/* Tableau block */
 .tableau-section {
   background-color: #0f3460;
+  max-width: 1020px;
+  margin: 0 auto 30px;
   padding: 25px 20px;
-  margin: 0 20px 30px;
   border-radius: 8px;
   scroll-margin-top: 15px;
 }
 
 .tableau-inner {
-  max-width: 1200px;
+  max-width: 100%;
   margin: 0 auto;
 }
 
@@ -166,7 +167,7 @@ a:hover {
 .tableau-wrapper {
   position: relative;
   width: 100%;
-  height: clamp(780px, calc(100vh - 200px), 980px);
+  height: clamp(520px, 72vw, 720px);
   border: 2px solid #ffd700;
   border-radius: 6px;
   overflow: hidden;
@@ -187,28 +188,37 @@ a:hover {
 
 @media (max-width: 768px) {
   .tableau-section {
-    margin-left: 10px;
-    margin-right: 10px;
+    margin-left: 20px;
+    margin-right: 20px;
     padding: 20px 15px;
   }
 
   .tableau-wrapper {
-    height: clamp(620px, calc(100vh - 220px), 860px);
+    height: clamp(420px, 85vw, 600px);
   }
 }
 
 /* Simulator promo block */
 .simulator-promo {
   background-color: #16213e;
-  padding: 30px 20px;
-  margin: 0 20px 30px;
+  max-width: 1020px;
+  margin: 0 auto 30px;
+  padding: 25px 20px;
   border-radius: 8px;
   border: 2px solid #ffd700;
 }
 
 .simulator-promo-inner {
-  max-width: 900px;
+  max-width: 100%;
   margin: 0 auto;
+}
+
+@media (max-width: 768px) {
+  .simulator-promo {
+    margin-left: 20px;
+    margin-right: 20px;
+    padding: 20px 15px;
+  }
 }
 
 .simulator-promo h2 {
