@@ -37,18 +37,6 @@
   }
 
   /**
-   * Ensure mailto links in header and footer open the default mail client
-   */
-  document.querySelectorAll('.header-social-links a[href^="mailto:"], .footer .social-links a[href^="mailto:"]').forEach((link) => {
-    link.addEventListener('click', (event) => {
-      const mailto = link.getAttribute('href');
-      if (!mailto) return;
-      event.preventDefault();
-      window.location.href = mailto;
-    });
-  });
-
-  /**
    * Hide mobile nav on same-page/hash links
    */
   document.querySelectorAll('#navmenu a').forEach(navmenu => {
