@@ -84,10 +84,17 @@ a:hover {
   margin-bottom: 18px;
 }
 
+.movie-list > li > ul {
+  margin-top: 12px;
+  padding-left: 22px;
+}
+
 .rating {
   color: #ffd700;
   font-family: Arial, sans-serif;
   font-weight: bold;
+  padding-top: 10px;
+  margin-top: 0;
 }
 
 .review-text {
@@ -159,9 +166,7 @@ a:hover {
 .tableau-wrapper {
   position: relative;
   width: 100%;
-  height: calc(100vh - 260px);
-  min-height: 380px;
-  max-height: 720px;
+  height: clamp(780px, calc(100vh - 200px), 980px);
   border: 2px solid #ffd700;
   border-radius: 6px;
   overflow: hidden;
@@ -172,14 +177,12 @@ a:hover {
 
 .tableau-wrapper iframe {
   position: absolute;
-  top: 50%;
-  left: 50%;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
   border: none;
   display: block;
-  transform: translate(-50%, -50%) scale(1.04);
-  transform-origin: center center;
 }
 
 @media (max-width: 768px) {
@@ -190,12 +193,7 @@ a:hover {
   }
 
   .tableau-wrapper {
-    height: calc(100vh - 300px);
-    min-height: 320px;
-  }
-
-  .tableau-wrapper iframe {
-    transform: translate(-50%, -50%) scale(1.06);
+    height: clamp(620px, calc(100vh - 220px), 860px);
   }
 }
 
