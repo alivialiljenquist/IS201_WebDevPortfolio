@@ -1,13 +1,15 @@
 <?php
 /**
- * Portfolio contact form handler.
- * Expects an AJAX POST from assets/vendor/php-email-form/validate.js
- * and returns "OK" on success.
+ * GitHub Pages cannot run PHP, so the live contact form uses FormSubmit:
+ * https://formsubmit.co/ajax/alivialiljenquist@gmail.com
+ *
+ * This file is kept for PHP-capable hosting only.
  */
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
   http_response_code(405);
-  echo 'Method not allowed.';
+  header('Content-Type: text/plain; charset=UTF-8');
+  echo 'Method not allowed. Use the contact form on the portfolio page.';
   exit;
 }
 
@@ -16,6 +18,7 @@ if (
   strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) !== 'xmlhttprequest'
 ) {
   http_response_code(400);
+  header('Content-Type: text/plain; charset=UTF-8');
   echo 'Invalid request.';
   exit;
 }

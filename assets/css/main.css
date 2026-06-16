@@ -172,6 +172,9 @@ h6 {
 
 .header .header-social-links {
   padding-right: 15px;
+  position: relative;
+  z-index: 10000;
+  flex-shrink: 0;
 }
 
 .header .header-social-links a {
@@ -185,7 +188,8 @@ h6 {
   transition: 0.3s;
   font-size: 16px;
   position: relative;
-  z-index: 10;
+  z-index: 1;
+  cursor: pointer;
 }
 
 .header .header-social-links a:hover {
@@ -347,6 +351,8 @@ h6 {
   .navmenu {
     padding: 0;
     z-index: 9997;
+    flex: 0 0 auto;
+    width: auto;
   }
 
   .navmenu ul {

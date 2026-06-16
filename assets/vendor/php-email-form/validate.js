@@ -50,25 +50,53 @@
   });
 
   function php_email_form_submit(thisForm, action, formData) {
+    if (action.includes('formsubmit.co')) {
+      const subject = formData.get('subject');
+      if (subject) {
+        formData.set('_subject', '[Portfolio Contact] ' + subject);
+      }
+    }
+
+    const headers = {'Accept': 'application/json'};
+    if (!action.includes('formsubmit.co')) {
+      headers['X-Requested-With'] = 'XMLHttpRequest';
+    }
+
     fetch(action, {
       method: 'POST',
       body: formData,
-      headers: {'X-Requested-With': 'XMLHttpRequest'}
+      headers: headers
     })
     .then(response => {
-      if( response.ok ) {
+      if (response.ok) {
         return response.text();
       } else {
-        throw new Error(`${response.status} ${response.statusText} ${response.url}`); 
+        throw new Error(`${response.status} ${response.statusText} ${response.url}`);
       }
     })
     .then(data => {
       thisForm.querySelector('.loading').classList.remove('d-block');
-      if (data.trim() == 'OK') {
+      const trimmed = data.trim();
+
+      if (trimmed === 'OK') {
         thisForm.querySelector('.sent-message').classList.add('d-block');
-        thisForm.reset(); 
-      } else {
-        throw new Error(data ? data : 'Form submission failed and no error message returned from: ' + action); 
+        thisForm.reset();
+        return;
+      }
+
+      try {
+        const json = JSON.parse(trimmed);
+        if (json.success === true || json.success === 'true') {
+          thisForm.querySelector('.sent-message').classList.add('d-block');
+          thisForm.reset();
+          return;
+        }
+        throw new Error(json.message || 'Form submission failed.');
+      } catch (error) {
+        if (error instanceof SyntaxError) {
+          throw new Error(trimmed || 'Form submission failed and no error message returned from: ' + action);
+        }
+        throw error;
       }
     })
     .catch((error) => {
