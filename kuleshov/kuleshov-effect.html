@@ -1,0 +1,1124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kuleshov Effect Experiment</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: #0d0d12;
+      color: #ececec;
+      transition: filter 0.8s ease;
+    }
+
+    body.filter-noir { filter: grayscale(75%) contrast(1.45) brightness(0.82) sepia(35%); }
+    body.filter-tension { filter: contrast(1.25) saturate(0.65) hue-rotate(195deg) brightness(0.9); }
+    body.filter-gold { filter: sepia(45%) saturate(1.6) hue-rotate(-8deg) brightness(1.05); }
+    body.filter-romance { filter: saturate(1.25) hue-rotate(-12deg) brightness(1.06) sepia(12%); }
+    body.filter-warm { filter: sepia(35%) saturate(1.35) brightness(1.08); }
+    body.filter-cold { filter: saturate(0.75) hue-rotate(185deg) brightness(0.94) contrast(1.1); }
+    body.filter-chaos { filter: contrast(1.35) saturate(1.55) hue-rotate(-18deg) brightness(0.88); }
+
+    .page {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 24px 20px 48px;
+    }
+
+    header { text-align: center; margin-bottom: 28px; }
+
+    header h1 {
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 2rem;
+      color: #f5c518;
+      margin: 0 0 8px;
+      letter-spacing: 0.04em;
+    }
+
+    header p {
+      color: #aaa;
+      max-width: 640px;
+      margin: 0 auto;
+      line-height: 1.5;
+      font-size: 0.95rem;
+    }
+
+    .back-link {
+      display: inline-block;
+      margin-bottom: 20px;
+      color: #f5c518;
+      text-decoration: none;
+      font-size: 0.9rem;
+    }
+
+    .back-link:hover { text-decoration: underline; }
+
+    .simulator {
+      background: #16161f;
+      border: 1px solid #333;
+      border-radius: 10px;
+      padding: 24px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+    }
+
+    .simulator h2 {
+      margin: 0 0 6px;
+      font-size: 1.15rem;
+      color: #f5c518;
+    }
+
+    .simulator .hint {
+      margin: 0 0 20px;
+      font-size: 0.85rem;
+      color: #888;
+    }
+
+    .filmstrip {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .shot { text-align: center; }
+
+    .shot-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: #777;
+      margin-bottom: 8px;
+    }
+
+    .shot-frame {
+      background: #000;
+      border: 2px solid #444;
+      border-radius: 6px;
+      overflow: hidden;
+      aspect-ratio: 4 / 5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .shot-frame img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .shot-frame img.cinematic-grade,
+    .cinema-screen img.cinematic-grade,
+    .prop img.cinematic-grade {
+      filter: contrast(1.12) saturate(0.72) brightness(0.86) sepia(0.1);
+    }
+
+    .shot-frame img.id-photo-grade,
+    .cinema-screen img.id-photo-grade {
+      filter: contrast(0.92) saturate(0.35) brightness(1.08);
+    }
+
+    .shot-frame img.face-zoom,
+    .cinema-screen img.face-zoom {
+      transform: scale(1.35);
+      transform-origin: center 28%;
+    }
+
+    .shot-frame.shot-a-clickable {
+      cursor: pointer;
+      transition: border-color 0.3s;
+    }
+
+    .shot-frame.shot-a-clickable:hover {
+      border-color: #f5c518;
+    }
+
+    .shot-hint {
+      font-size: 0.68rem;
+      color: #666;
+      margin-top: 6px;
+      font-style: italic;
+    }
+
+    .shot-frame.drop-zone {
+      position: relative;
+      border-style: dashed;
+      border-color: #f5c518;
+      min-height: 200px;
+      cursor: pointer;
+      transition: background 0.3s, border-color 0.3s;
+    }
+
+    .shot-frame.drop-zone .placeholder {
+      position: relative;
+      z-index: 1;
+      margin: 0;
+      color: #666;
+      font-size: 0.85rem;
+      padding: 16px;
+      line-height: 1.4;
+    }
+
+    .shot-frame.drop-zone .placeholder.is-hidden { display: none; }
+
+    #shotBImage {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: 2;
+      display: none;
+    }
+
+    #shotBImage.is-visible { display: block; }
+
+    .shot-frame.drop-zone.drag-over {
+      background: rgba(245, 197, 24, 0.08);
+      border-color: #fff;
+    }
+
+    .plus-sign {
+      font-size: 2rem;
+      color: #555;
+      user-select: none;
+    }
+
+    .cinema-block {
+      margin-bottom: 24px;
+      padding: 20px;
+      background: #0a0a0f;
+      border-radius: 8px;
+      border: 1px solid #333;
+    }
+
+    .cinema-block h3 {
+      margin: 0 0 12px;
+      font-size: 0.9rem;
+      color: #ccc;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    .cinema-screen {
+      position: relative;
+      background: #000;
+      border: 3px solid #222;
+      border-radius: 4px;
+      aspect-ratio: 16 / 9;
+      overflow: hidden;
+      box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.8);
+    }
+
+    .cinema-screen img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      object-position: center center;
+      opacity: 0;
+      transition: opacity 0.35s ease;
+    }
+
+    .cinema-screen img.active {
+      opacity: 1;
+    }
+
+    .cinema-label {
+      position: absolute;
+      bottom: 12px;
+      left: 12px;
+      background: rgba(0, 0, 0, 0.75);
+      color: #f5c518;
+      font-size: 0.75rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 6px 10px;
+      border-radius: 3px;
+      z-index: 3;
+    }
+
+    .cinema-status {
+      margin: 10px 0 14px;
+      font-size: 0.88rem;
+      color: #999;
+      min-height: 1.3em;
+      font-style: italic;
+    }
+
+    .cinema-controls {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .watch-btn, .stop-btn {
+      padding: 10px 22px;
+      border-radius: 24px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      border: 2px solid #f5c518;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    .watch-btn {
+      background: #f5c518;
+      color: #0d0d12;
+      font-weight: 600;
+    }
+
+    .watch-btn:hover:not(:disabled) {
+      background: #ffe566;
+    }
+
+    .watch-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .stop-btn {
+      background: transparent;
+      color: #f5c518;
+      display: none;
+    }
+
+    .stop-btn.visible { display: inline-block; }
+
+    .stop-btn:hover {
+      background: #f5c518;
+      color: #0d0d12;
+    }
+
+    .meter-block { margin-bottom: 24px; }
+
+    .meter-block h3 {
+      margin: 0 0 8px;
+      font-size: 0.9rem;
+      color: #ccc;
+    }
+
+    .meter-track {
+      height: 28px;
+      background: #222;
+      border-radius: 14px;
+      overflow: hidden;
+      border: 1px solid #444;
+    }
+
+    .meter-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #4a5568, #f5c518);
+      border-radius: 14px;
+      transition: width 0.6s ease;
+    }
+
+    .meter-label {
+      margin-top: 8px;
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: #f5c518;
+      min-height: 1.4em;
+    }
+
+    .meter-desc {
+      margin-top: 4px;
+      font-size: 0.88rem;
+      color: #999;
+      font-style: italic;
+      min-height: 2.6em;
+    }
+
+    .props-panel h3 {
+      margin: 0 0 12px;
+      font-size: 0.9rem;
+      color: #ccc;
+    }
+
+    .props-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: center;
+    }
+
+    .prop {
+      width: 88px;
+      text-align: center;
+      cursor: grab;
+      user-select: none;
+      transition: transform 0.2s;
+    }
+
+    .prop:active { cursor: grabbing; }
+    .prop:hover { transform: translateY(-4px); }
+
+    .prop.selected {
+      outline: 2px solid #f5c518;
+      outline-offset: 4px;
+      border-radius: 6px;
+    }
+
+    .prop img {
+      width: 72px;
+      height: 72px;
+      object-fit: cover;
+      border-radius: 6px;
+      border: 2px solid #555;
+      display: block;
+      margin: 0 auto 6px;
+      pointer-events: none;
+    }
+
+    .prop span {
+      font-size: 0.68rem;
+      color: #aaa;
+      line-height: 1.2;
+      display: block;
+    }
+
+    .unlock-panel {
+      margin-top: 24px;
+      padding: 16px;
+      background: #1e1e2a;
+      border-radius: 8px;
+      border-left: 4px solid #f5c518;
+      display: none;
+    }
+
+    .unlock-panel.visible { display: block; }
+
+    .unlock-panel h4 {
+      margin: 0 0 8px;
+      color: #f5c518;
+      font-size: 0.95rem;
+    }
+
+    .unlock-panel p {
+      margin: 0;
+      font-size: 0.88rem;
+      color: #bbb;
+    }
+
+    .reset-btn {
+      display: block;
+      margin: 20px auto 0;
+      padding: 10px 24px;
+      background: transparent;
+      border: 2px solid #f5c518;
+      color: #f5c518;
+      border-radius: 24px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    .reset-btn:hover {
+      background: #f5c518;
+      color: #0d0d12;
+    }
+
+    @media (max-width: 640px) {
+      .filmstrip { grid-template-columns: 1fr; }
+      .plus-sign { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="page">
+    <a class="back-link" href="../scratch/movies.html">&larr; Back to Movie Log</a>
+
+    <header>
+      <h1>The Kuleshov Effect Experiment</h1>
+      <p>
+        Soviet filmmaker Lev Kuleshov proved that audiences project emotion onto a neutral face
+        based solely on the shot that follows. Click Shot A to cycle cast, choose a context shot,
+        then hit <strong>Watch the Scene</strong> to see your edit play as a miniature film.
+      </p>
+    </header>
+
+    <div class="simulator">
+      <h2>Interactive Film Editing Simulator</h2>
+      <p class="hint">Drag a prop into Shot B or click one. Click Shot A to cycle five neutral-expression stock portraits — front-facing, no smiles.</p>
+
+      <div class="filmstrip">
+        <div class="shot">
+          <div class="shot-label" id="shotALabel">Shot A — Actor I</div>
+          <div id="shotAFrame" class="shot-frame shot-a-clickable" title="Click to change lead actor">
+            <img id="neutralFace" class="id-photo-grade" src="" alt="Actor with neutral expression">
+          </div>
+          <p class="shot-hint">Click face to cycle cast (1 of 5)</p>
+        </div>
+
+        <div class="plus-sign">+</div>
+
+        <div class="shot">
+          <div class="shot-label">Shot B — Context</div>
+          <div id="dropZone" class="shot-frame drop-zone">
+            <p class="placeholder" id="dropPlaceholder">Drop or click a prop here</p>
+            <img id="shotBImage" class="cinematic-grade" alt="">
+          </div>
+        </div>
+      </div>
+
+      <div class="props-panel">
+        <h3>Editing Props — Drag or Click</h3>
+        <div class="props-row" id="propsRow"></div>
+      </div>
+
+      <div class="meter-block">
+        <h3>Audience Subconscious Interpretation</h3>
+        <div class="meter-track">
+          <div id="meterFill" class="meter-fill"></div>
+        </div>
+        <div id="meterLabel" class="meter-label">Awaiting edit…</div>
+        <div id="meterDesc" class="meter-desc">Combine the neutral face with a context image to reveal what the audience reads into the performance.</div>
+      </div>
+
+      <div class="cinema-block">
+        <h3>Watch the Scene</h3>
+        <div class="cinema-screen" id="cinemaScreen">
+          <img id="cinemaImgA" class="id-photo-grade" src="" alt="Shot A">
+          <img id="cinemaImgB" class="cinematic-grade" alt="Shot B">
+          <span class="cinema-label" id="cinemaLabel">Ready</span>
+        </div>
+        <p class="cinema-status" id="cinemaStatus">Select a context shot to enable playback.</p>
+        <div class="cinema-controls">
+          <button type="button" class="watch-btn" id="watchSceneBtn" disabled>Watch the Scene</button>
+          <button type="button" class="stop-btn" id="stopSceneBtn">Stop</button>
+        </div>
+      </div>
+
+      <div id="unlockPanel" class="unlock-panel">
+        <h4 id="unlockTitle"></h4>
+        <p id="unlockText"></p>
+      </div>
+
+      <button type="button" class="reset-btn" id="resetBtn">Reset Experiment</button>
+    </div>
+  </div>
+
+  <script>
+    const NEUTRAL_FACES = [
+      {
+        name: "Actor I",
+        portrait: "https://images.pexels.com/photos/14599188/pexels-photo-14599188.jpeg?auto=compress&cs=tinysrgb&w=500&h=625&fit=crop",
+        cinema: "https://images.pexels.com/photos/14599188/pexels-photo-14599188.jpeg?auto=compress&cs=tinysrgb&w=900&h=900&fit=crop"
+      },
+      {
+        name: "Actor II",
+        portrait: "images/actor-ii.jpg",
+        cinema: "images/actor-ii.jpg"
+      },
+      {
+        name: "Actor III",
+        portrait: "https://images.pexels.com/photos/614810/pexels-photo-614810.jpeg?auto=compress&cs=tinysrgb&w=500&h=625&fit=crop",
+        cinema: "https://images.pexels.com/photos/614810/pexels-photo-614810.jpeg?auto=compress&cs=tinysrgb&w=900&h=900&fit=crop"
+      },
+      {
+        name: "Actor IV",
+        portrait: "images/actor-iv.jpg",
+        cinema: "images/actor-iv.jpg"
+      },
+      {
+        name: "Actor V",
+        portrait: "images/actor-v.jpg",
+        cinema: "images/actor-v.jpg",
+        faceZoom: true
+      }
+    ];
+
+    const combinations = {
+      soup: {
+        name: "Bowl of Soup",
+        thumb: "https://images.unsplash.com/photo-1547592166-23ac45744acd?w=160&h=160&fit=crop",
+        image: "https://images.unsplash.com/photo-1547592166-23ac45744acd?w=500&h=625&fit=crop",
+        alt: "Bowl of soup",
+        label: "Hunger",
+        meter: 88,
+        description: "The neutral face now reads as starving — longing etched into every still frame.",
+        filter: null,
+        unlockTitle: "Tone: Classic Hollywood Melodrama",
+        unlockText: "A swelling score underscores the cut — the same face suddenly feels like a Golden Age hunger scene."
+      },
+      coffin: {
+        name: "Coffin",
+        thumb: "https://images.unsplash.com/photo-1745145507126-8cc9c62b8cab?w=160&h=160&fit=crop",
+        image: "https://images.unsplash.com/photo-1745145507126-8cc9c62b8cab?w=500&h=625&fit=crop",
+        alt: "Coffin",
+        label: "Grief",
+        meter: 94,
+        description: "Mourning floods the cut. The actor's expression never changed — only the juxtaposition did.",
+        filter: "noir",
+        unlockTitle: "Tone: Noir Funeral",
+        unlockText: "Grayscale and sepia wash the frame — grief is projected entirely through editing."
+      },
+      dog: {
+        name: "Barking Dog",
+        thumb: "https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=160&h=160&fit=crop",
+        image: "https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=500&h=625&fit=crop",
+        alt: "Barking dog",
+        label: "Fear / Alertness",
+        meter: 76,
+        description: "The face now suggests panic — as if the character just heard something dangerous outside.",
+        filter: "tension",
+        unlockTitle: "Tone: Suspense Thriller",
+        unlockText: "Cool, sharp tones creep in — dread is read into a face that never moved."
+      },
+      cash: {
+        name: "Pile of Cash",
+        thumb: "https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?w=160&h=160&fit=crop",
+        image: "https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?w=500&h=625&fit=crop",
+        alt: "Pile of cash",
+        label: "Greed / Ambition",
+        meter: 82,
+        description: "Suddenly the actor looks calculating — hungry for power, not for food.",
+        filter: "gold",
+        unlockTitle: "Tone: Ambition & Power",
+        unlockText: "Golden warmth saturates the cut — the audience imagines a schemer behind the stare."
+      },
+      wedding: {
+        name: "Wedding",
+        thumb: "https://images.unsplash.com/photo-1519741497674-611481863552?w=160&h=160&fit=crop",
+        image: "https://images.unsplash.com/photo-1519741497674-611481863552?w=500&h=625&fit=crop",
+        alt: "Wedding couple",
+        label: "Romance / Joy",
+        meter: 86,
+        description: "The same blank face now beams with happiness — love inferred purely from the cut.",
+        filter: "romance",
+        unlockTitle: "Tone: Romantic Comedy",
+        unlockText: "Soft, warm scoring turns a deadpan stare into a meet-cute memory."
+      },
+      baby: {
+        name: "Baby",
+        thumb: "https://images.unsplash.com/photo-1516627145497-ae6968895b74?w=160&h=160&fit=crop",
+        image: "https://images.unsplash.com/photo-1516627145497-ae6968895b74?w=500&h=625&fit=crop",
+        alt: "Baby",
+        label: "Tenderness / Love",
+        meter: 90,
+        description: "Affection floods the juxtaposition — the actor appears gentle, protective, moved.",
+        filter: "warm",
+        unlockTitle: "Tone: Tender Family Drama",
+        unlockText: "A lullaby-like score reframes the neutral face as a devoted parent."
+      },
+      storm: {
+        name: "Storm Clouds",
+        thumb: "https://images.unsplash.com/photo-1761193619617-8d870f9de5e3?w=160&h=160&fit=crop",
+        image: "https://images.unsplash.com/photo-1761193619617-8d870f9de5e3?w=500&h=625&fit=crop",
+        alt: "Storm clouds",
+        label: "Dread / Foreboding",
+        meter: 91,
+        description: "The face reads as haunted — catastrophe looming just outside the frame.",
+        filter: "tension",
+        unlockTitle: "Tone: Apocalyptic Drama",
+        unlockText: "Ominous ambience turns a still face into the calm before disaster."
+      },
+      fire: {
+        name: "Fire",
+        thumb: "https://images.unsplash.com/photo-1546182208-1e70985e2bf3?w=160&h=160&fit=crop",
+        image: "https://images.unsplash.com/photo-1546182208-1e70985e2bf3?w=500&h=625&fit=crop",
+        alt: "Fire",
+        label: "Rage / Danger",
+        meter: 87,
+        description: "The actor suddenly seems furious — or trapped — though their expression never shifted.",
+        filter: "chaos",
+        unlockTitle: "Tone: Action Crisis",
+        unlockText: "Aggressive scoring and a hot grade make the cut feel like a life-or-death moment."
+      },
+      desert: {
+        name: "Desert",
+        thumb: "https://images.unsplash.com/photo-1509316785289-025f5b846b35?w=160&h=160&fit=crop",
+        image: "https://images.unsplash.com/photo-1509316785289-025f5b846b35?w=500&h=625&fit=crop",
+        alt: "Desert landscape",
+        label: "Isolation / Longing",
+        meter: 79,
+        description: "The stare becomes distant and weary — a soul adrift in empty space.",
+        filter: "warm",
+        unlockTitle: "Tone: Western Solitude",
+        unlockText: "Sparse, dusty scoring evokes a loner on the edge of civilization."
+      },
+      city: {
+        name: "City Street",
+        thumb: "https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=160&h=160&fit=crop",
+        image: "https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=500&h=625&fit=crop",
+        alt: "City street",
+        label: "Determination",
+        meter: 81,
+        description: "The face now reads as driven — a protagonist marching toward an uncertain future.",
+        filter: "gold",
+        unlockTitle: "Tone: Urban Pursuit",
+        unlockText: "Pulsing city energy turns a blank look into relentless forward motion."
+      },
+      ocean: {
+        name: "Ocean",
+        thumb: "https://images.unsplash.com/photo-1484387436194-cf7cb70800ce?w=160&h=160&fit=crop",
+        image: "https://images.unsplash.com/photo-1484387436194-cf7cb70800ce?w=500&h=625&fit=crop",
+        alt: "Ocean waves",
+        label: "Melancholy / Peace",
+        meter: 74,
+        description: "The cut suggests quiet sorrow — or acceptance — carried on an endless tide.",
+        filter: "cold",
+        unlockTitle: "Tone: Reflective Drama",
+        unlockText: "Gentle waves of music reframe the face as someone lost in memory."
+      },
+      sunset: {
+        name: "Sunset",
+        thumb: "https://images.unsplash.com/photo-1495616811223-4d98c6e9c869?w=160&h=160&fit=crop",
+        image: "https://images.unsplash.com/photo-1495616811223-4d98c6e9c869?w=500&h=625&fit=crop",
+        alt: "Sunset sky",
+        label: "Nostalgia / Hope",
+        meter: 84,
+        description: "The actor appears wistful — looking back on a life, or forward to a new chapter.",
+        filter: "warm",
+        unlockTitle: "Tone: Bittersweet Ending",
+        unlockText: "Golden-hour warmth makes the neutral face feel like a closing shot."
+      }
+    };
+
+    const FILTER_CLASSES = ["filter-noir", "filter-tension", "filter-gold", "filter-romance", "filter-warm", "filter-cold", "filter-chaos"];
+
+    const dropZone = document.getElementById("dropZone");
+    const dropPlaceholder = document.getElementById("dropPlaceholder");
+    const shotBImage = document.getElementById("shotBImage");
+    const neutralFace = document.getElementById("neutralFace");
+    const shotAFrame = document.getElementById("shotAFrame");
+    const shotALabel = document.getElementById("shotALabel");
+    const meterFill = document.getElementById("meterFill");
+    const meterLabel = document.getElementById("meterLabel");
+    const meterDesc = document.getElementById("meterDesc");
+    const unlockPanel = document.getElementById("unlockPanel");
+    const unlockTitle = document.getElementById("unlockTitle");
+    const unlockText = document.getElementById("unlockText");
+    const resetBtn = document.getElementById("resetBtn");
+    const propsRow = document.getElementById("propsRow");
+    const watchSceneBtn = document.getElementById("watchSceneBtn");
+    const stopSceneBtn = document.getElementById("stopSceneBtn");
+    const cinemaImgA = document.getElementById("cinemaImgA");
+    const cinemaImgB = document.getElementById("cinemaImgB");
+    const cinemaLabel = document.getElementById("cinemaLabel");
+    const cinemaStatus = document.getElementById("cinemaStatus");
+
+    let activeProp = null;
+    let faceIndex = 0;
+    let scenePlaying = false;
+    let sceneTimers = [];
+    let moodAudioCtx = null;
+    let moodAudioNodes = [];
+    let moodAudioStopTimer = null;
+    const SCENE_DURATION = 7500;
+    const SHOT_B_TIME = 2500;
+    const SHOT_A_REPRISE_TIME = 5000;
+    const SCENE_SECONDS = SCENE_DURATION / 1000;
+
+    function buildProps() {
+      Object.keys(combinations).forEach(function (propId) {
+        const combo = combinations[propId];
+        const prop = document.createElement("div");
+        prop.className = "prop";
+        prop.draggable = true;
+        prop.dataset.prop = propId;
+        prop.innerHTML = '<img class="cinematic-grade" src="' + combo.thumb + '" alt="' + combo.alt + '"><span>' + combo.name + '</span>';
+        prop.addEventListener("dragstart", function (e) {
+          e.dataTransfer.setData("text/plain", propId);
+          e.dataTransfer.effectAllowed = "copy";
+        });
+        prop.addEventListener("click", function () {
+          applyCombination(propId);
+        });
+        propsRow.appendChild(prop);
+      });
+    }
+
+    function clearBodyFilters() {
+      FILTER_CLASSES.forEach(function (cls) {
+        document.body.classList.remove(cls);
+      });
+    }
+
+    function updateShotA() {
+      const face = NEUTRAL_FACES[faceIndex];
+      neutralFace.src = face.portrait;
+      neutralFace.alt = face.name + " — neutral expression";
+      cinemaImgA.src = face.cinema;
+      neutralFace.classList.toggle("face-zoom", !!face.faceZoom);
+      cinemaImgA.classList.toggle("face-zoom", !!face.faceZoom);
+      shotALabel.textContent = "Shot A — " + face.name;
+      const hint = document.querySelector(".shot-hint");
+      if (hint) {
+        hint.textContent = "Click face to cycle cast (" + (faceIndex + 1) + " of " + NEUTRAL_FACES.length + ")";
+      }
+    }
+
+    function cycleShotA() {
+      if (scenePlaying) return;
+      faceIndex = (faceIndex + 1) % NEUTRAL_FACES.length;
+      updateShotA();
+    }
+
+    function getProps() {
+      return document.querySelectorAll(".prop");
+    }
+
+    function showShotBImage(propId, alt) {
+      const combo = combinations[propId];
+      shotBImage.onload = function () {
+        shotBImage.classList.add("is-visible");
+        dropPlaceholder.classList.add("is-hidden");
+      };
+      shotBImage.onerror = function () {
+        shotBImage.src = combo.image;
+      };
+      shotBImage.alt = alt;
+      shotBImage.src = combo.image;
+      if (shotBImage.complete) {
+        shotBImage.classList.add("is-visible");
+        dropPlaceholder.classList.add("is-hidden");
+      }
+      cinemaImgB.src = combo.image.replace("w=500&h=625", "w=900&h=900");
+      cinemaImgB.alt = alt;
+    }
+
+    function hideShotBImage() {
+      shotBImage.onload = null;
+      shotBImage.onerror = null;
+      shotBImage.classList.remove("is-visible");
+      shotBImage.removeAttribute("src");
+      shotBImage.alt = "";
+      dropPlaceholder.classList.remove("is-hidden");
+      cinemaImgB.classList.remove("active");
+      cinemaImgB.removeAttribute("src");
+    }
+
+    function showCinemaShot(shot, label, statusText) {
+      if (shot === "A") {
+        cinemaImgB.classList.remove("active");
+        cinemaImgA.classList.add("active");
+      } else {
+        cinemaImgA.classList.remove("active");
+        cinemaImgB.classList.add("active");
+      }
+      cinemaLabel.textContent = label;
+      cinemaStatus.textContent = statusText;
+    }
+
+    function clearSceneTimers() {
+      sceneTimers.forEach(clearTimeout);
+      sceneTimers = [];
+    }
+
+    function playTone(ctx, destination, start, duration, freq, type, volume) {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = type;
+      osc.frequency.setValueAtTime(freq, start);
+      gain.gain.setValueAtTime(0.0001, start);
+      gain.gain.exponentialRampToValueAtTime(Math.max(volume, 0.0002), start + 0.08);
+      gain.gain.setValueAtTime(volume, start + duration - 0.12);
+      gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
+      osc.connect(gain);
+      gain.connect(destination);
+      osc.start(start);
+      osc.stop(start + duration + 0.02);
+      moodAudioNodes.push(osc, gain);
+    }
+
+    function createReverb(ctx) {
+      const length = Math.floor(ctx.sampleRate * 2.2);
+      const impulse = ctx.createBuffer(2, length, ctx.sampleRate);
+      for (let channel = 0; channel < 2; channel++) {
+        const data = impulse.getChannelData(channel);
+        for (let i = 0; i < length; i++) {
+          data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / length, 2.2);
+        }
+      }
+      const convolver = ctx.createConvolver();
+      convolver.buffer = impulse;
+      moodAudioNodes.push(convolver);
+      return convolver;
+    }
+
+    function setupFilmMix(ctx) {
+      const master = ctx.createGain();
+      const dry = ctx.createGain();
+      const wet = ctx.createGain();
+      const reverb = createReverb(ctx);
+      master.gain.value = 0.3;
+      dry.gain.value = 0.7;
+      wet.gain.value = 0.45;
+      dry.connect(master);
+      reverb.connect(wet);
+      wet.connect(master);
+      master.connect(ctx.destination);
+      moodAudioNodes.push(master, dry, wet);
+      return { dry: dry, wet: reverb, master: master };
+    }
+
+    function stringPad(ctx, dry, wet, start, duration, notes, volume) {
+      const filter = ctx.createBiquadFilter();
+      filter.type = "lowpass";
+      filter.frequency.value = 1500;
+      filter.Q.value = 0.8;
+      filter.connect(dry);
+      filter.connect(wet);
+      moodAudioNodes.push(filter);
+      notes.forEach(function (note) {
+        playTone(ctx, filter, start, duration, note, "sawtooth", volume * 0.09);
+        playTone(ctx, filter, start, duration, note * 1.002, "triangle", volume * 0.06);
+      });
+    }
+
+    function filmMelody(ctx, dry, wet, start, notes, spacing, type, volume) {
+      notes.forEach(function (note, index) {
+        if (!note) return;
+        const bus = ctx.createGain();
+        bus.gain.value = 1;
+        bus.connect(dry);
+        bus.connect(wet);
+        moodAudioNodes.push(bus);
+        playTone(ctx, bus, start + index * spacing, spacing * 0.88, note, type, volume);
+      });
+    }
+
+    function filmHit(ctx, dry, start, freq, volume) {
+      playTone(ctx, dry, start, 0.35, freq, "sine", volume);
+      playTone(ctx, dry, start, 0.2, freq * 0.5, "triangle", volume * 0.7);
+    }
+
+    function playMoodSequence(propId) {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      moodAudioCtx = ctx;
+      const mix = setupFilmMix(ctx);
+      const t0 = ctx.currentTime + 0.08;
+
+      if (propId === "soup") {
+        stringPad(ctx, mix.dry, mix.wet, t0, SCENE_SECONDS, [196, 247, 294], 1.1);
+        filmMelody(ctx, mix.dry, mix.wet, t0 + 0.4, [392, 440, 494, 523, 587], 0.62, "sine", 0.22);
+        filmHit(ctx, mix.dry, t0 + 2.3, 98, 0.18);
+      } else if (propId === "coffin") {
+        stringPad(ctx, mix.dry, mix.wet, t0, SCENE_SECONDS, [73, 98, 123], 1.3);
+        filmMelody(ctx, mix.dry, mix.wet, t0 + 1.0, [196, 185, 175, 165, 155], 1.15, "triangle", 0.16);
+        playTone(ctx, mix.wet, t0 + 4.8, 2.0, 220, "sine", 0.08);
+      } else if (propId === "dog") {
+        stringPad(ctx, mix.dry, mix.wet, t0, SCENE_SECONDS, [110, 138], 0.7);
+        for (let i = 0; i < 12; i++) {
+          filmHit(ctx, mix.dry, t0 + 0.2 + i * 0.48, i % 2 ? 180 : 140, 0.14);
+          if (i % 3 === 0) {
+            playTone(ctx, mix.wet, t0 + 0.2 + i * 0.48, 0.15, 880, "square", 0.04);
+          }
+        }
+      } else if (propId === "cash") {
+        stringPad(ctx, mix.dry, mix.wet, t0, SCENE_SECONDS, [82, 110, 138], 0.9);
+        filmMelody(ctx, mix.dry, mix.wet, t0 + 0.3, [330, 392, 440, 392, 494, 523], 0.72, "sawtooth", 0.1);
+        filmHit(ctx, mix.dry, t0 + 5.0, 65, 0.16);
+      } else if (propId === "wedding") {
+        stringPad(ctx, mix.dry, mix.wet, t0, SCENE_SECONDS, [131, 165, 196], 1.0);
+        filmMelody(ctx, mix.dry, mix.wet, t0 + 0.5, [262, 330, 392, 523, 659, 523], 0.7, "sine", 0.18);
+      } else if (propId === "baby") {
+        stringPad(ctx, mix.dry, mix.wet, t0, SCENE_SECONDS, [196, 247], 0.8);
+        filmMelody(ctx, mix.dry, mix.wet, t0 + 0.6, [523, 587, 659, 587, 523, 494], 1.0, "sine", 0.15);
+      } else if (propId === "storm") {
+        stringPad(ctx, mix.dry, mix.wet, t0, SCENE_SECONDS, [55, 73, 82], 1.2);
+        filmMelody(ctx, mix.dry, mix.wet, t0 + 0.4, [138, 147, 156, 165, 175, 185], 0.95, "sawtooth", 0.09);
+        for (let i = 0; i < 6; i++) {
+          filmHit(ctx, mix.dry, t0 + 1.0 + i * 1.0, 45, 0.2);
+        }
+      } else if (propId === "fire") {
+        stringPad(ctx, mix.dry, mix.wet, t0, SCENE_SECONDS, [98, 123], 1.0);
+        for (let i = 0; i < 9; i++) {
+          filmHit(ctx, mix.dry, t0 + i * 0.65, 70 + i * 8, 0.18);
+          playTone(ctx, mix.wet, t0 + i * 0.65, 0.4, 220 + i * 15, "sawtooth", 0.07);
+        }
+      } else if (propId === "desert") {
+        stringPad(ctx, mix.dry, mix.wet, t0, SCENE_SECONDS, [98, 123, 147], 0.9);
+        filmMelody(ctx, mix.dry, mix.wet, t0 + 0.8, [196, null, 220, null, 247, null], 1.4, "triangle", 0.14);
+      } else if (propId === "city") {
+        stringPad(ctx, mix.dry, mix.wet, t0, SCENE_SECONDS, [110, 138, 165], 0.85);
+        for (let i = 0; i < 14; i++) {
+          filmHit(ctx, mix.dry, t0 + i * 0.45, 55, 0.12);
+          if (i % 2 === 0) {
+            playTone(ctx, mix.dry, t0 + i * 0.45, 0.25, 330, "triangle", 0.1);
+          }
+        }
+      } else if (propId === "ocean") {
+        stringPad(ctx, mix.dry, mix.wet, t0, SCENE_SECONDS, [98, 123, 147], 1.0);
+        filmMelody(ctx, mix.dry, mix.wet, t0 + 1.0, [196, 185, 175, 165, 156], 1.2, "sine", 0.14);
+        playTone(ctx, mix.wet, t0, SCENE_SECONDS, 130, "sine", 0.06);
+      } else if (propId === "sunset") {
+        stringPad(ctx, mix.dry, mix.wet, t0, SCENE_SECONDS, [110, 131, 165], 1.0);
+        filmMelody(ctx, mix.dry, mix.wet, t0 + 0.5, [330, 294, 262, 247, 220, 196], 1.0, "sine", 0.17);
+      }
+
+      moodAudioStopTimer = setTimeout(stopSceneAudio, SCENE_DURATION);
+    }
+
+    function stopSceneAudio() {
+      if (moodAudioStopTimer) {
+        clearTimeout(moodAudioStopTimer);
+        moodAudioStopTimer = null;
+      }
+      moodAudioNodes.forEach(function (node) {
+        try {
+          if (node.stop) node.stop(0);
+          node.disconnect();
+        } catch (e) { /* already stopped */ }
+      });
+      moodAudioNodes = [];
+      if (moodAudioCtx) {
+        moodAudioCtx.close().catch(function () {});
+        moodAudioCtx = null;
+      }
+    }
+
+    function startSceneAudio(propId) {
+      stopSceneAudio();
+      try {
+        playMoodSequence(propId);
+      } catch (e) {
+        cinemaStatus.textContent = "Audio unavailable in this browser.";
+      }
+    }
+
+    function stopScene() {
+      scenePlaying = false;
+      clearSceneTimers();
+      stopSceneAudio();
+      watchSceneBtn.disabled = !activeProp;
+      stopSceneBtn.classList.remove("visible");
+      cinemaImgA.classList.add("active");
+      cinemaImgB.classList.remove("active");
+      cinemaLabel.textContent = activeProp ? "Ready" : "Ready";
+      cinemaStatus.textContent = activeProp
+        ? "Press Watch the Scene to play your Kuleshov cut."
+        : "Select a context shot to enable playback.";
+    }
+
+    function finishScene() {
+      scenePlaying = false;
+      clearSceneTimers();
+      stopSceneAudio();
+      watchSceneBtn.disabled = false;
+      stopSceneBtn.classList.remove("visible");
+      cinemaLabel.textContent = "Fin";
+      cinemaStatus.textContent = "Scene complete. The Kuleshov Effect: identical footage, entirely different meaning.";
+    }
+
+    function scheduleStep(delay, fn) {
+      sceneTimers.push(setTimeout(fn, delay));
+    }
+
+    function watchScene() {
+      if (!activeProp || scenePlaying) return;
+      const combo = combinations[activeProp];
+
+      scenePlaying = true;
+      watchSceneBtn.disabled = true;
+      stopSceneBtn.classList.add("visible");
+
+      clearBodyFilters();
+      if (combo.filter) {
+        document.body.classList.add("filter-" + combo.filter);
+      }
+
+      startSceneAudio(activeProp);
+
+      const actorName = NEUTRAL_FACES[faceIndex].name;
+      showCinemaShot("A", "Shot A — " + actorName, "Opening on " + actorName + "'s neutral face…");
+
+      scheduleStep(SHOT_B_TIME, function () {
+        showCinemaShot("B", "Shot B — " + combo.name, "Cut to context: audience reads \"" + combo.label + "\" into the performance.");
+      });
+
+      scheduleStep(SHOT_A_REPRISE_TIME, function () {
+        showCinemaShot("A", "Shot A — " + actorName + " (Reprise)", "Return to the same face — but the meaning has completely changed.");
+      });
+
+      scheduleStep(SCENE_DURATION, finishScene);
+    }
+
+    function applyCombination(propId) {
+      const combo = combinations[propId];
+      if (!combo) return;
+
+      if (scenePlaying) stopScene();
+
+      activeProp = propId;
+
+      getProps().forEach(function (p) {
+        p.classList.toggle("selected", p.dataset.prop === propId);
+      });
+
+      showShotBImage(propId, combo.alt);
+
+      meterFill.style.width = combo.meter + "%";
+      meterLabel.textContent = combo.label + " (" + combo.meter + "%)";
+      meterDesc.textContent = combo.description;
+
+      clearBodyFilters();
+      if (combo.filter) {
+        document.body.classList.add("filter-" + combo.filter);
+      }
+
+      unlockTitle.textContent = combo.unlockTitle;
+      unlockText.textContent = combo.unlockText;
+      unlockPanel.classList.add("visible");
+
+      watchSceneBtn.disabled = false;
+      cinemaImgA.classList.add("active");
+      cinemaStatus.textContent = "Press Watch the Scene to play your Kuleshov cut.";
+    }
+
+    dropZone.addEventListener("dragover", function (e) {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = "copy";
+      dropZone.classList.add("drag-over");
+    });
+
+    dropZone.addEventListener("dragleave", function () {
+      dropZone.classList.remove("drag-over");
+    });
+
+    dropZone.addEventListener("drop", function (e) {
+      e.preventDefault();
+      dropZone.classList.remove("drag-over");
+      applyCombination(e.dataTransfer.getData("text/plain"));
+    });
+
+    watchSceneBtn.addEventListener("click", watchScene);
+    stopSceneBtn.addEventListener("click", stopScene);
+    shotAFrame.addEventListener("click", cycleShotA);
+
+    resetBtn.addEventListener("click", function () {
+      stopScene();
+      activeProp = null;
+      getProps().forEach(function (p) { p.classList.remove("selected"); });
+      hideShotBImage();
+      meterFill.style.width = "0%";
+      meterLabel.textContent = "Awaiting edit…";
+      meterDesc.textContent = "Combine the neutral face with a context image to reveal what the audience reads into the performance.";
+      clearBodyFilters();
+      unlockPanel.classList.remove("visible");
+      watchSceneBtn.disabled = true;
+      cinemaLabel.textContent = "Ready";
+      cinemaStatus.textContent = "Select a context shot to enable playback.";
+      faceIndex = 0;
+      updateShotA();
+    });
+
+    buildProps();
+    updateShotA();
+    cinemaImgA.classList.add("active");
+  </script>
+
+</body>
+</html>

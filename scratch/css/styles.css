@@ -1,0 +1,259 @@
+/* Scratch page stylesheet — movies theme (separate from Bootstrap portfolio) */
+
+body {
+  background-color: #1a1a2e;
+  background-image: linear-gradient(rgba(26, 26, 46, 0.92), rgba(26, 26, 46, 0.92)),
+    url("https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=1600&q=80");
+  background-size: cover;
+  background-attachment: fixed;
+  font-family: Georgia, "Times New Roman", serif;
+  color: #e8e8e8;
+  margin: 0;
+  line-height: 1.6;
+}
+
+h1, h2, h3 {
+  font-family: "Trebuchet MS", Arial, sans-serif;
+  color: #ffd700;
+}
+
+a {
+  color: #ff6b6b;
+  text-decoration: none;
+}
+
+a:hover {
+  color: #ff9999;
+}
+
+/* Header block */
+.header {
+  background-color: #16213e;
+  padding: 20px 30px;
+  border-bottom: 3px solid #ffd700;
+}
+
+.header h1 {
+  margin: 0 0 10px 0;
+  font-size: 2rem;
+}
+
+.nav-links {
+  font-family: Arial, Helvetica, sans-serif;
+  color: #cccccc;
+}
+
+.nav-links a {
+  margin-right: 15px;
+  font-weight: bold;
+}
+
+/* Main content block */
+.main-content {
+  max-width: 900px;
+  margin: 30px auto;
+  padding: 0 20px;
+}
+
+.intro {
+  font-family: Verdana, Geneva, sans-serif;
+  color: #b8c5d6;
+  font-size: 1.05rem;
+  margin-bottom: 25px;
+}
+
+/* Reviews block */
+.reviews-section {
+  background-color: #0f3460;
+  padding: 25px;
+  border-radius: 8px;
+  margin-bottom: 30px;
+}
+
+.reviews-section h2 {
+  margin-top: 0;
+  color: #ffd700;
+}
+
+.movie-list {
+  font-family: Georgia, serif;
+  color: #f0f0f0;
+}
+
+.movie-list li {
+  margin-bottom: 18px;
+}
+
+.rating {
+  color: #ffd700;
+  font-family: Arial, sans-serif;
+  font-weight: bold;
+}
+
+.review-text {
+  color: #d4d4d4;
+  font-style: italic;
+}
+
+/* Media block */
+.media-section {
+  background-color: #16213e;
+  padding: 25px;
+  border-radius: 8px;
+  margin-bottom: 30px;
+}
+
+.media-section img {
+  max-width: 100%;
+  height: auto;
+  border: 2px solid #ffd700;
+  border-radius: 4px;
+  display: block;
+  margin: 15px auto;
+}
+
+.video-wrapper {
+  position: relative;
+  padding-bottom: 56.25%;
+  height: 0;
+  overflow: hidden;
+  margin-top: 15px;
+}
+
+.video-wrapper iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+/* Tableau block — full width, viewport-height sizing */
+.tableau-section {
+  background-color: #0f3460;
+  padding: 25px 20px;
+  margin: 0 20px 30px;
+  border-radius: 8px;
+  scroll-margin-top: 15px;
+}
+
+.tableau-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.tableau-inner h2 {
+  margin-top: 0;
+  margin-bottom: 8px;
+}
+
+.tableau-inner > p {
+  margin-top: 0;
+  margin-bottom: 16px;
+  color: #b8c5d6;
+  font-family: Verdana, Geneva, sans-serif;
+  font-size: 0.95rem;
+}
+
+.tableau-wrapper {
+  position: relative;
+  width: 100%;
+  height: calc(100vh - 260px);
+  min-height: 380px;
+  max-height: 720px;
+  border: 2px solid #ffd700;
+  border-radius: 6px;
+  overflow: hidden;
+  background-color: #ffffff;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
+  line-height: 0;
+}
+
+.tableau-wrapper iframe {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+  transform: translate(-50%, -50%) scale(1.04);
+  transform-origin: center center;
+}
+
+@media (max-width: 768px) {
+  .tableau-section {
+    margin-left: 10px;
+    margin-right: 10px;
+    padding: 20px 15px;
+  }
+
+  .tableau-wrapper {
+    height: calc(100vh - 300px);
+    min-height: 320px;
+  }
+
+  .tableau-wrapper iframe {
+    transform: translate(-50%, -50%) scale(1.06);
+  }
+}
+
+/* Simulator promo block */
+.simulator-promo {
+  background-color: #16213e;
+  padding: 30px 20px;
+  margin: 0 20px 30px;
+  border-radius: 8px;
+  border: 2px solid #ffd700;
+}
+
+.simulator-promo-inner {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.simulator-promo h2 {
+  margin-top: 0;
+  color: #ffd700;
+  font-family: "Trebuchet MS", Arial, sans-serif;
+}
+
+.simulator-promo p {
+  color: #d4d4d4;
+  font-family: Verdana, Geneva, sans-serif;
+  line-height: 1.6;
+}
+
+.simulator-link {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 12px 24px;
+  background-color: #ffd700;
+  color: #1a1a2e;
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: bold;
+  text-decoration: none;
+  border-radius: 24px;
+  transition: background-color 0.3s;
+}
+
+.simulator-link:hover {
+  background-color: #ffe566;
+  color: #1a1a2e;
+}
+
+/* Footer block */
+.footer {
+  background-color: #16213e;
+  padding: 20px 30px;
+  text-align: center;
+  border-top: 3px solid #ffd700;
+  font-family: Arial, sans-serif;
+  color: #aaaaaa;
+}
+
+.footer a {
+  color: #ffd700;
+  font-weight: bold;
+}

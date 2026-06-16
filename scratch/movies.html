@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Movie Log — Scratch Page</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <div class="header">
+    <h1>My Movie Log</h1>
+    <div class="nav-links">
+      <a href="#recent">Recent Movies</a> |
+      <a href="#media">Trailers &amp; Images</a> |
+      <a href="#data">Movie Data</a> |
+      <a href="../index.html">Back to Portfolio</a>
+    </div>
+  </div>
+
+  <div class="main-content">
+
+    <p class="intro">
+      This scratch page is a simple movie journal built with HTML and CSS.
+      Jump to <a href="#recent">my recent reviews</a>, check out a trailer, or explore movie data below.
+    </p>
+
+    <div id="recent" class="reviews-section">
+      <h2>Recently Watched</h2>
+      <p>My last three movies, ranked in the order I watched them:</p>
+
+      <!-- Ordered list with embedded unordered lists -->
+      <ol class="movie-list">
+        <li>
+          <strong>Disclosure Day</strong>
+          <ul>
+            <li class="rating">Rating: 2/5 stars</li>
+            <li class="review-text">A forgettable sci-fi thriller that was supposed to be a fun watch but was just boring. Steven Spielberg didn't deliver this time. I was expecting more of a thriller and less of a car chase. They should have made the last half of the movie be the whole movie.</li>
+          </ul>
+        </li>
+        <li>
+          <strong>Backrooms</strong>
+          <ul>
+            <li class="rating">Rating: 4/5 stars</li>
+            <li class="review-text">Genuinely unsettling. The liminal-space horror works because it commits to freaky dread over jump scares — flickering fluorescent lights, endless yellow hallways, and the growing sense that something is wrong with reality itself. It's a fun watch, but not for the faint of heart.</li>
+          </ul>
+        </li>
+        <li>
+          <strong>Masters of the Universe</strong>
+          <ul>
+            <li class="rating">Rating: 2/5 stars</li>
+            <li class="review-text">Nostalgia cannot save this one. The campy 80s fantasy feels dated rather than charming, with stiff performances and a plot that exists mainly to sell action figures. Skeletor almost makes it fun — almost.</li>
+          </ul>
+        </li>
+      </ol>
+    </div>
+
+    <div id="media" class="media-section">
+      <h2>Movie Night</h2>
+      <p>Nothing beats the theater experience. Here's a photo of a classic cinema setup:</p>
+
+      <img src="https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?w=800&q=80" alt="Movie theater with red seats and big screen">
+
+      <h3>Featured Trailer: Backrooms</h3>
+
+      <div class="video-wrapper">
+        <iframe
+          src="https://www.youtube.com/embed/0HjdiohVOik"
+          title="Backrooms Official Trailer"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen>
+        </iframe>
+      </div>
+    </div>
+
+  </div>
+
+  <div id="data" class="tableau-section">
+    <div class="tableau-inner">
+      <h2>Movie Data Visualization</h2>
+      <p>Interactive Tableau graph — explore IMDb Top 250 movie insights (click and filter when hosted online):</p>
+
+      <div class="tableau-wrapper">
+        <iframe
+          src="https://public.tableau.com/views/IMDbandBoxOfficeMojoMovieDataInsights/IMDbTop250Insights?:embed=yes&:showVizHome=no&:display_count=no&:tabs=no&:toolbar=bottom"
+          title="IMDb Top 250 Movie Insights"
+          allowfullscreen>
+        </iframe>
+      </div>
+    </div>
+  </div>
+
+  <div id="simulator" class="simulator-promo">
+    <div class="simulator-promo-inner">
+      <h2>Interactive Filmmaking Lab</h2>
+      <p>
+        Want to go beyond watching movies? Try the <strong>Kuleshov Effect Experiment</strong> —
+        a hands-on editing simulator where you pair a neutral actor's face with context images
+        (soup, a coffin, a dog, cash) and watch the audience's subconscious interpretation shift in real time.
+      </p>
+      <p>
+        Built as a standalone sandbox with drag-and-drop, dynamic CSS filters, and unlockable
+        audio/visual effects — it's filmmaking theory you can play with.
+      </p>
+      <a class="simulator-link" href="../kuleshov/kuleshov-effect.html">Launch the Kuleshov Effect Simulator &rarr;</a>
+    </div>
+  </div>
+
+  <div class="footer">
+    <p>Scratch assignment page — Movie Log</p>
+    <p><a href="../index.html">Return to my professional portfolio</a></p>
+  </div>
+
+</body>
+</html>
